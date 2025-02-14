@@ -6,7 +6,7 @@ WORKDIR /app
 
 #Copia o arquivo requirementes e Instala Dependências
 COPY requirements.txt /app
-RUN pip install --no-cache-dir -r requeriments.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 #Copia o Diretorio app
 COPY app /app
