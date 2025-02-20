@@ -1,5 +1,6 @@
 name: Pipeline
 
+# Configura as condições que vão ativar o workflow
 on:
   push:
     branches:
@@ -8,6 +9,45 @@ on:
   pull_request:
     branches:
     - main
-    
+
+# Adiciona um botão para rodar o workflow    
   workflow_dispatch:
+
+
+jobs:
+  docker:
+    #OS Usado
+    runs-on: ubuntu-latest
+
+  # Passos e comandos para os testes
+    steps:
+    
+      #Baixa o repo
+     - name: Checkout Repo
+       uses: actions/checkout@v3
+
+    # Configura ambiente docker
+     - name: Set up Docker Buildx
+       uses: docker/setup-buildx-action@v3.9.0
+
+    # Verifica dockerfile
+     - name: Test Dockerfile
+       run: docker buildx validate .
+
+    # Builda imagem
+     - name: Build Image
+       run: docker build -t python-app .
+       
+    # Teste de python
+     - name: Run pylint
+       run: docker run --rm python-app sh -c "pip install pylint && pylint main.py"
+       
+    # Verifica se o host está rodando corretamente
+     - name: Test application
+       run: |
+          docker run --rm -d -p 8000:8000 --name python-app python-app
+          sleep 5  # Esperar o servidor iniciar
+          curl http://localhost:8000
+          docker stop python-app
+        
   
